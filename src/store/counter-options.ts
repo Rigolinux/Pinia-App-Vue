@@ -5,7 +5,7 @@ interface CounterOptionsState {
     lastChanged?: Date;
 }
 
-export const useCounterOptions = defineStore('counterOptions', {
+export const useCounterOptionsStore = defineStore('counterOptions', {
     state: () => ({
         count: 0,
         lastChanged: undefined,
