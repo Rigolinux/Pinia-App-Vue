@@ -14,9 +14,13 @@ const useClient = (id:number) =>{
 
     const client = ref<Client>();
 
-    const {isLoading, data,} = useQuery(
+    const {isLoading, data,isError, error} = useQuery(
         ["client",id],
         ()=>getClient(id),
+        {
+            retry: 2,
+
+        }
         
     )
 
@@ -29,6 +33,8 @@ const useClient = (id:number) =>{
     return {
         isLoading,
         client,
+        isError,
+        error,
 
     }
 };
