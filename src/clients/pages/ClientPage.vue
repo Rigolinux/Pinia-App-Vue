@@ -5,6 +5,7 @@ import useClient from '../composables/useClient';
 import { useMutation } from '@tanstack/vue-query';
 import type { Client } from '../interfaces/Client';
 import clientsAPi from '@/api/clients-api';
+import { watch } from 'vue';
 
 const route = useRoute();
 
@@ -18,13 +19,19 @@ const updateClient =  async (client:Client ):Promise<Client> =>{
 
 const clientMutation = useMutation(updateClient)
 
+watch(clientMutation.isSuccess, () => {
+  setTimeout(() => {
+    clientMutation.reset();
+  }, 2000);
+});
+
 
 </script>
 
 <template>
 
-  <h3>Guardando ...</h3>
-  <h3>Guardado</h3>
+  <h3 v-if="clientMutation.isLoading.value" >Guardando ...</h3>
+  <h3 v-if="clientMutation.isSuccess.value" >Guardado</h3>
 
   <LoadingModal v-if="isLoading" />
 
@@ -47,7 +54,10 @@ const clientMutation = useMutation(updateClient)
         />
         
         <br />
-        <button>Save</button>
+        <button
+          type="submit"
+          :disabled="clientMutation.isLoading.value"
+        >Save</button>
     </form>
     <code>
         information about client
