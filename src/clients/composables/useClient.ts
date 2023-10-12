@@ -1,6 +1,6 @@
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { Client } from '../interfaces/Client';
-import { useQuery } from '@tanstack/vue-query';
+import { useMutation, useQuery } from '@tanstack/vue-query';
 import clientsAPi from '@/api/clients-api';
 
 const getClient = async(id:number):Promise<Client> => {
@@ -9,11 +9,24 @@ const getClient = async(id:number):Promise<Client> => {
     return data;
 };
 
+const updateClient =  async (client:Client ):Promise<Client> =>{
+    const {data} = await clientsAPi.patch(`clients/${client.id}`, client);
+    /* const queryClient = useQueryClient();
+    const queries = queryClient.getQueryCache().findAll(['clients?page='], {
+      exact: false,
+    });
+    queries.forEach( query => query.reset());
+    queries.forEach( query => query.fetch()); */
+    return data;
+  };
+
 
 const useClient = (id:number) =>{
 
     const client = ref<Client>();
 
+    const  clientMutation = useMutation(updateClient);
+    
     const {isLoading, data,isError, error} = useQuery(
         ["client",id],
         ()=>getClient(id),
@@ -23,6 +36,14 @@ const useClient = (id:number) =>{
         }
         
     )
+    
+      
+    watch(clientMutation.isSuccess, () => {
+        setTimeout(() => {
+          clientMutation.reset();
+        }, 2000);
+      });
+      
 
     watch(data,() => {
         if(data.value){
@@ -35,7 +56,13 @@ const useClient = (id:number) =>{
         client,
         isError,
         error,
+        clientMutation,
 
+        //computed
+        updateClient:      clientMutation.mutate,
+        isUpdating:        computed( () => clientMutation.isLoading.value ),
+        isUpdatingSuccess: computed( () => clientMutation.isSuccess.value ),
+        isErrorUpdating:   computed( () => clientMutation.isError.value ),
     }
 };
 
