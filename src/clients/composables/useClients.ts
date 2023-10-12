@@ -34,7 +34,8 @@ const useClients = () => {
         if(clients){
             store.setClients(clients);
         }
-    })
+    },
+    {immediate: true})
 
     
     return {
